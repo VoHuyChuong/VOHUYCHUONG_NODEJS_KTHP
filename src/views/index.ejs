@@ -1,0 +1,153 @@
+//response
+
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+    <% if (!category) { %> 
+        <div class="homepage-banner shadow-sm rounded-4 overflow-hidden mb-5">
+            <div class="container h-100 d-flex align-items-center justify-content-center text-center">
+                <div class="banner-content p-5 rounded-4 text-white">
+                    <h1 class="display-3 fw-bold mb-2 text-uppercase">Voucher App</h1>
+                    <p class="fs-4 mb-4 opacity-90">Săn mã Shopee, Lazada, Tiki mới nhất mỗi ngày</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/?cat=shopee" class="btn btn-light btn-lg fw-bold px-5 py-3 rounded-pill text-primary shadow">SĂN MÃ NGAY</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } else { %>
+        <div class="py-3 mb-4 border-bottom border-primary border-3 d-inline-block">
+            <h2 class="text-uppercase fw-bold m-0 text-primary">Mã Giảm Giá <%= category %></h2>
+        </div>
+        
+        <div class="row">
+            <% if (coupons && coupons.length > 0) { %>
+                <% coupons.forEach(coupon => { %>
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 border-0 shadow-sm hover-up transition">
+                            <div class="card-body text-center p-4">
+                                <h3 class="text-primary fw-bold mb-2 copy-btn" 
+                                    style="cursor: pointer;" 
+                                    title="Click để sao chép"
+                                    onclick="copyToClipboard('<%= coupon.code %>')">
+                                    <%= coupon.code %>
+                                </h3>
+                                
+                                <p class="badge bg-danger fs-6 mb-3 px-3 py-2 rounded-pill">
+                                    <% if (coupon.discountType === 'percentage') { %>
+                                        Giảm <%= coupon.value %>%
+                                    <% } else { %>
+                                        Giảm <%= coupon.value.toLocaleString() %> VNĐ
+                                    <% } %>
+                                </p>
+
+                                <p class="text-muted small mb-4"><%= coupon.description %></p>
+                                <div class="border-top pt-3 text-secondary small">
+                                    Hết hạn: <%= new Date(coupon.expiryDate).toLocaleDateString('vi-VN') %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted fs-5">Sàn này hiện chưa có mã nào.</p>
+                </div>
+            <% } %>
+        </div>
+    <% } %>
+</div>
+
+<div class="modal fade" id="addCouponModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-primary text-white py-3">
+        <h5 class="modal-title fw-bold">🎟️ TẠO MÃ MỚI</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form action="/add-coupon" method="POST">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Mã Voucher</label>
+            <input type="text" name="code" class="form-control" required style="text-transform: uppercase;">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Sàn áp dụng</label>
+            <select name="category" class="form-select">
+              <option value="shopee">Shopee</option>
+              <option value="lazada">Lazada</option>
+              <option value="tiki">Tiki</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="col-8 mb-3">
+              <label class="form-label fw-bold">Mức giảm</label>
+              <div class="input-group">
+                <input type="number" name="value" class="form-control" required placeholder="Giá trị">
+                <select name="discountType" class="form-select" style="max-width: 90px;">
+                  <option value="amount">VNĐ</option>
+                  <option value="percentage">%</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-4 mb-3">
+              <label class="form-label fw-bold">Hết hạn</label>
+              <input type="date" name="expiryDate" class="form-control" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Mô tả</label>
+            <textarea name="description" class="form-control" rows="2"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 fw-bold py-2">XÁC NHẬN LƯU</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+    .homepage-banner {
+        height: 60vh;
+        background: linear-gradient(rgba(13,110,253,0.85), rgba(0,50,150,0.7)), 
+                    url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070');
+        background-size: cover; background-position: center;
+    }
+    .banner-content { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+    .transition { transition: all 0.3s ease; }
+    .hover-up:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
+    .copy-btn:hover { color: #0a58ca !important; transform: scale(1.05); transition: all 0.2s ease; }
+</style>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast("Đã sao chép mã: " + text);
+    }).catch(err => {
+        console.error('Không thể sao chép: ', err);
+    });
+}
+
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.innerHTML = message;
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.backgroundColor = '#0d6efd';
+    toast.style.color = 'white';
+    toast.style.padding = '12px 24px';
+    toast.style.borderRadius = '50px';
+    toast.style.zIndex = '10000';
+    toast.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+    toast.style.fontWeight = 'bold';
+    toast.style.transition = 'opacity 0.5s ease';
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 500);
+    }, 2000);
+}
+</script>
+
+<%- include('partials/footer') %>

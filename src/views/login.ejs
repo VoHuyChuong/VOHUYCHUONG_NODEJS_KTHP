@@ -1,0 +1,33 @@
+<%- include('partials/header') %>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0">ĐĂNG NHẬP</h4>
+                </div>
+                <div class="card-body p-4">
+                    <% if (locals.error) { %>
+                        <div class="alert alert-danger p-2 small text-center"><%= error %></div>
+                    <% } %>
+
+                    <form action="/login" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Tên đăng nhập</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">ĐĂNG NHẬP</button>
+                    </form>
+                </div>
+                <div class="card-footer text-center bg-white border-0">
+                    <p class="small">Chưa có tài khoản? <a href="/register">Đăng ký ngay</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('partials/footer') %>
